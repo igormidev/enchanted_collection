@@ -48,6 +48,30 @@ extension ListUtils<T> on List<T> {
     });
   }
 
+  /// The single element satisfying [test].
+  ///
+  /// Returns `null` if there are either no elements
+  /// or more than one element satisfying [test].
+  ///
+  /// **Notice**: This behavior differs from [Iterable.singleWhere]
+  /// which always throws if there are more than one match,
+  /// and only calls the `orElse` function on zero matches.
+  T? singleWhereOrNull(bool Function(T element) test) {
+    T? result;
+    var found = false;
+    for (var element in this) {
+      if (test(element)) {
+        if (!found) {
+          result = element;
+          found = true;
+        } else {
+          return null;
+        }
+      }
+    }
+    return result;
+  }
+
   /// Will add [newValue] in the list in the position of [index].
   ///
   /// Equal to [List.insert] function. But will return the list
@@ -55,14 +79,18 @@ extension ListUtils<T> on List<T> {
   ///
   /// Example:
   /// ```dart
-  /// final list = [1, 2, 3];
-  /// list
-  ///   .addInIndex(0, 4)
-  ///   .addInIndex(1, 5)
-  ///   .addInIndex(2, 6);
+  /// final insertInIndexExample = [1, 2, 4];
+  /// insertInIndexExample.insertInIndex(1, 3);
+  /// print(insertInIndexExample); // [1, 2, 3, 4]
   /// ```
-  List<T> addInIndex(int index, T newValue) {
+  List<T> insertInIndex(int index, T newValue) {
     insert(index, newValue);
+    return this;
+  }
+
+  /// Will change the value in the [index] position to [newValue].
+  List<T> changeAtIndexTo(int index, T newValue) {
+    this[index] = newValue;
     return this;
   }
 
@@ -121,56 +149,11 @@ extension NullableListLessBoilerPlateExtension<T> on List<T?> {
   /// Returns true if any element is different from null
   bool get isAnyElementDiffFromNull => any((element) => element != null);
 
+  /// Returns true if any element is null
+  bool get isAnyElementNull => any((element) => element == null);
+
   /// Returns all null elements of a list
   List<T> get removeNull => whereType<T>().toList();
-}
-
-extension ListLessBoilerPlateExtension<T> on List<T> {
-  /// The single element satisfying [test].
-  ///
-  /// Returns `null` if there are either no elements
-  /// or more than one element satisfying [test].
-  ///
-  /// **Notice**: This behavior differs from [Iterable.singleWhere]
-  /// which always throws if there are more than one match,
-  /// and only calls the `orElse` function on zero matches.
-  T? singleWhereOrNull(bool Function(T element) test) {
-    T? result;
-    var found = false;
-    for (var element in this) {
-      if (test(element)) {
-        if (!found) {
-          result = element;
-          found = true;
-        } else {
-          return null;
-        }
-      }
-    }
-    return result;
-  }
-}
-
-extension StringExtension on String {
-  /// Try to decode a json string into a map.
-  /// If the string is not a valid json, will return null.
-  ///
-  /// Is just a boilerplate to avoid try/catch blocks.
-  /// Basically, this:
-  /// ```dart
-  /// try {
-  ///   return jsonDecode(this);
-  /// } catch (_) {
-  ///   return null;
-  /// }
-  /// ```
-  Map? get tryDecode {
-    try {
-      return jsonDecode(this);
-    } catch (_) {
-      return null;
-    }
-  }
 }
 
 extension MapCaster<K, V> on Map<K, V> {
@@ -246,5 +229,29 @@ extension ListCasters<E> on List<E> {
 }
 
 extension GenericsExtension<T> on T {
+  /// Cast value to type [R].
+  /// Basically, a shortcut to `this as R`:
   R as<R>() => this as R;
+}
+
+extension StringExtension on String {
+  /// Try to decode a json string into a map.
+  /// If the string is not a valid json, will return null.
+  ///
+  /// Is just a boilerplate to avoid try/catch blocks.
+  /// Basically, this:
+  /// ```dart
+  /// try {
+  ///   return jsonDecode(this);
+  /// } catch (_) {
+  ///   return null;
+  /// }
+  /// ```
+  Map? get tryDecode {
+    try {
+      return jsonDecode(this);
+    } catch (_) {
+      return null;
+    }
+  }
 }
