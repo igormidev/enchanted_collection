@@ -1,3 +1,6 @@
+## 1.1.1
+README.md navigation summary fix
+
 ## 1.1.0
 - Change at index function added
 - `tryDecode` function added
