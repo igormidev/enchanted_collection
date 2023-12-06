@@ -2,6 +2,7 @@
 * Added async option to forEachMapper method. Now you can call await before it and execute async functions for each interation on the list.
 * List extensions now work in Iterable also
 * Commentary macros structures created 
+* Logo added
 
 ## 1.1.1
 README.md navigation summary fix
