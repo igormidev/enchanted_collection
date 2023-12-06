@@ -1,8 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 
 typedef Mapper<T, R> = R Function(
     T value, bool isFirst, bool isLast, int index);
-typedef ForEachMapper<T> = void Function(
+typedef ForEachMapper<T> = FutureOr<void> Function(
     T value, bool isFirst, bool isLast, int index);
 
 typedef CastToMapMapper<R, T> = R Function(
@@ -12,16 +13,192 @@ typedef CastToMapMapper<R, T> = R Function(
   int index,
 );
 
+/// {@template mapper}
+/// A map function with aditional info in each interation.
+///
+/// Such as:
+/// - Is the first interation? [isFirst]
+/// - Is the last interation? [isLast]
+/// - The index of the current interation [index]
+/// - The value of the current interation [value]
+///
+/// Returns a list of the mapped values.
+/// {@endtemplate}
+
+/// {@template forEachMapper}
+/// A for each function with aditional info in each interation.
+/// Such as:
+/// - Is the first interation? [isFirst]
+/// - Is the last interation? [isLast]
+/// - The index of the current interation [index]
+/// - The value of the current interation [value]
+/// {@endtemplate}
+
+/// {@template singleWhereOrNull}
+/// The single element satisfying [test].
+///
+/// Returns `null` if there are either no elements
+/// or more than one element satisfying [test].
+///
+/// **Notice**: This behavior differs from [Iterable.singleWhere]
+/// which always throws if there are more than one match,
+/// and only calls the `orElse` function on zero matches.
+/// {@endtemplate}
+
+/// {@template splitIntoGroups}
+/// Will split the list into groups of [quantityPerGroup] elements.
+///
+/// The last group may have less elements than [quantityPerGroup].
+/// {@endtemplate}
+
+/// {@template insertInIndex}
+/// Will add [newValue] in the list in the position of [index].
+///
+/// Equal to [List.insert] function. But will return the list
+/// itself with the added value. So you can cascade it.
+///
+/// Example:
+/// ```dart
+/// final insertInIndexExample = [1, 2, 4];
+/// insertInIndexExample.insertInIndex(1, 3);
+/// print(insertInIndexExample); // [1, 2, 3, 4]
+/// ```
+/// {@endtemplate}
+
+/// {@template changeAtIndexTo}
+/// Will change the value in the [index] position to [newValue].
+/// {@endtemplate}
+
+/// {@template addInLast}
+/// Will add [newValue] in the last position of the list.
+///
+/// Equal to [List.add] function. But will return the list
+/// itself with the added value. So you can cascade it.
+///
+/// Example:
+/// ```dart
+/// final list = [1, 2, 3];
+/// list
+///   .addInLast(4)
+///   .addInLast(5)
+///   .addInLast(6);
+/// ```
+/// {@endtemplate}
+
+/// {@template castToMap}
+/// Will cast a list into a map.
+///
+/// For each element in the list, will call the [onElementToKey] and [onElementToValue] functions.
+///
+/// Example:
+/// ```dart
+/// final list = [
+///   {
+///     'name': 'igor',
+///     'age': 23
+///   },
+///   {
+///     'name': 'miranda',
+///     'age': 30
+///   },
+/// ];
+/// final Map<String, int> persons = list.castToMap(
+///   (element) {
+///     return element['name'] as String;
+///   },
+///   (element) {
+///     return element['age'] as int;
+///   },
+/// );
+/// ```
+/// `persons` map will be:
+/// ```json
+/// {
+///   "igor": 23,
+///   "miranda": 30
+/// }
+/// ```
+/// {@endtemplate}
+
+/// {@template castToMapWithMapper}
+/// Check [castToMap] documentation for base info about this function.
+/// That because this function is basically a [castToMap] but
+/// with more info in each interation, such as:
+/// - Is the first interation? [isFirst]
+/// - Is the last interation? [isLast]
+/// - The index of the current interation [index]
+/// - The value of the current interation [value]
+/// {@endtemplate}
+
+/// {@template isAnyElementDiffFromNull}
+/// Returns true if any element is different from null
+/// {@endtemplate}
+
+/// {@template isAnyElementNull}
+/// Returns true if any element is null
+/// {@endtemplate}
+
+/// {@template removeNull}
+/// Removes all null elements of a list
+/// {@endtemplate}
+
+/// Just to cast to list and do the default logic
+extension IterableCastersToList<T> on Iterable<T> {
+  /// {@macro mapper}
+  List<R> mapper<R>(Mapper<T, R> toElement) => toList().mapper(toElement);
+
+  /// {@macro forEachMapper}
+  FutureOr<void> forEachMapper(ForEachMapper<T> toElement) =>
+      toList().forEachMapper(toElement);
+
+  /// {@macro singleWhereOrNull}
+  T? singleWhereOrNull(bool Function(T element) test) =>
+      toList().singleWhereOrNull(test);
+
+  /// {@macro insertInIndex}
+  List<T> insertInIndex(int index, T newValue) =>
+      toList().insertInIndex(index, newValue);
+
+  /// {@macro changeAtIndexTo}
+  List<T> changeAtIndexTo(int index, T newValue) =>
+      toList().changeAtIndexTo(index, newValue);
+
+  /// {@macro addInLast}
+  List<T> addInLast(T newValue) => toList().addInLast(newValue);
+
+  /// {@macro splitIntoGroups}
+  List<List<T>> splitIntoGroups(int quantityPerGroup) =>
+      toList().splitIntoGroups(quantityPerGroup);
+
+  /// {@macro castToMap}
+  Map<K, V> castToMap<K, V>(
+    K Function(T element) onElementToKey,
+    V Function(T element) onElementToValue,
+  ) =>
+      toList().castToMap(onElementToKey, onElementToValue);
+
+  /// {@macro castToMapWithMapper}
+  Map<K, V> castToMapWithMapper<K, V>(
+    CastToMapMapper<K, T> onElementToKey,
+    CastToMapMapper<V, T> onElementToValue,
+  ) =>
+      toList().castToMapWithMapper(onElementToKey, onElementToValue);
+}
+
+/// A list of nullable elements.
+extension NullableIterableLessBoilerPlateExtension<T> on Iterable<T?> {
+  /// {@macro isAnyElementDiffFromNull}
+  bool get isAnyElementDiffFromNull => toList().isAnyElementDiffFromNull;
+
+  /// {@macro isAnyElementNull}
+  bool get isAnyElementNull => toList().isAnyElementNull;
+
+  /// {@macro removeNull}
+  List<T> get removeNull => toList().removeNull;
+}
+
 extension ListUtils<T> on List<T> {
-  /// A map function with aditional info in each interation.
-  ///
-  /// Such as:
-  /// - Is the first interation? [isFirst]
-  /// - Is the last interation? [isLast]
-  /// - The index of the current interation [index]
-  /// - The value of the current interation [value]
-  ///
-  /// Returns a list of the mapped values.
+  /// {@macro mapper}
   List<R> mapper<R>(Mapper<T, R> toElement) {
     return asMap().entries.map((entry) {
       final index = entry.key;
@@ -32,30 +209,18 @@ extension ListUtils<T> on List<T> {
     }).toList();
   }
 
-  /// A for each function with aditional info in each interation.
-  /// Such as:
-  /// - Is the first interation? [isFirst]
-  /// - Is the last interation? [isLast]
-  /// - The index of the current interation [index]
-  /// - The value of the current interation [value]
-  void forEachMapper(ForEachMapper<T> toElement) {
-    asMap().entries.forEach((entry) {
+  /// {@macro forEachMapper}
+  FutureOr<void> forEachMapper(ForEachMapper<T> toElement) async {
+    asMap().entries.forEach((entry) async {
       final index = entry.key;
       final value = entry.value;
       final isLast = (index + 1) == length;
       final isFirst = index == 0;
-      toElement(value, isFirst, isLast, index);
+      await toElement(value, isFirst, isLast, index);
     });
   }
 
-  /// The single element satisfying [test].
-  ///
-  /// Returns `null` if there are either no elements
-  /// or more than one element satisfying [test].
-  ///
-  /// **Notice**: This behavior differs from [Iterable.singleWhere]
-  /// which always throws if there are more than one match,
-  /// and only calls the `orElse` function on zero matches.
+  /// {@macro singleWhereOrNull}
   T? singleWhereOrNull(bool Function(T element) test) {
     T? result;
     var found = false;
@@ -72,49 +237,25 @@ extension ListUtils<T> on List<T> {
     return result;
   }
 
-  /// Will add [newValue] in the list in the position of [index].
-  ///
-  /// Equal to [List.insert] function. But will return the list
-  /// itself with the added value. So you can cascade it.
-  ///
-  /// Example:
-  /// ```dart
-  /// final insertInIndexExample = [1, 2, 4];
-  /// insertInIndexExample.insertInIndex(1, 3);
-  /// print(insertInIndexExample); // [1, 2, 3, 4]
-  /// ```
+  /// {@macro insertInIndex}
   List<T> insertInIndex(int index, T newValue) {
     insert(index, newValue);
     return this;
   }
 
-  /// Will change the value in the [index] position to [newValue].
+  /// {@macro changeAtIndexTo}
   List<T> changeAtIndexTo(int index, T newValue) {
     this[index] = newValue;
     return this;
   }
 
-  /// Will add [newValue] in the last position of the list.
-  ///
-  /// Equal to [List.add] function. But will return the list
-  /// itself with the added value. So you can cascade it.
-  ///
-  /// Example:
-  /// ```dart
-  /// final list = [1, 2, 3];
-  /// list
-  ///   .addInLast(4)
-  ///   .addInLast(5)
-  ///   .addInLast(6);
-  /// ```
+  /// {@macro addInLast}
   List<T> addInLast(T newValue) {
     add(newValue);
     return this;
   }
 
-  /// Will split the list into groups of [quantityPerGroup] elements.
-  ///
-  /// The last group may have less elements than [quantityPerGroup].
+  /// {@macro splitIntoGroups}
   List<List<T>> splitIntoGroups(int quantityPerGroup) {
     final List<List<T>> val = [];
     if (quantityPerGroup == 1) {
@@ -146,13 +287,13 @@ extension ListUtils<T> on List<T> {
 
 /// A list of nullable elements.
 extension NullableListLessBoilerPlateExtension<T> on List<T?> {
-  /// Returns true if any element is different from null
+  /// {@macro isAnyElementDiffFromNull}
   bool get isAnyElementDiffFromNull => any((element) => element != null);
 
-  /// Returns true if any element is null
+  /// {@macro isAnyElementNull}
   bool get isAnyElementNull => any((element) => element == null);
 
-  /// Returns all null elements of a list
+  /// {@macro removeNull}
   List<T> get removeNull => whereType<T>().toList();
 }
 
@@ -167,38 +308,7 @@ extension MapCaster<K, V> on Map<K, V> {
 }
 
 extension ListCasters<E> on List<E> {
-  /// Will cast a list into a map.
-  ///
-  /// For each element in the list, will call the [onElementToKey] and [onElementToValue] functions.
-  ///
-  /// Example:
-  /// ```dart
-  /// final list = [
-  ///   {
-  ///     'name': 'igor',
-  ///     'age': 23
-  ///   },
-  ///   {
-  ///     'name': 'miranda',
-  ///     'age': 30
-  ///   },
-  /// ];
-  /// final Map<String, int> persons = list.castToMap(
-  ///   (element) {
-  ///     return element['name'] as String;
-  ///   },
-  ///   (element) {
-  ///     return element['age'] as int;
-  ///   },
-  /// );
-  /// ```
-  /// `persons` map will be:
-  /// ```json
-  /// {
-  ///   "igor": 23,
-  ///   "miranda": 30
-  /// }
-  /// ```
+  /// {@macro castToMap}
   Map<K, V> castToMap<K, V>(
     K Function(E element) onElementToKey,
     V Function(E element) onElementToValue,
@@ -206,13 +316,7 @@ extension ListCasters<E> on List<E> {
     return {for (var e in this) onElementToKey(e): onElementToValue(e)};
   }
 
-  /// Check [castToMap] documentation for base info about this function.
-  /// That because this function is basically a [castToMap] but
-  /// with more info in each interation, such as:
-  /// - Is the first interation? [isFirst]
-  /// - Is the last interation? [isLast]
-  /// - The index of the current interation [index]
-  /// - The value of the current interation [value]
+  /// {@macro castToMapWithMapper}
   Map<K, V> castToMapWithMapper<K, V>(
     CastToMapMapper<K, E> onElementToKey,
     CastToMapMapper<V, E> onElementToValue,
