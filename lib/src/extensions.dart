@@ -185,6 +185,26 @@ extension IterableCastersToList<T> on Iterable<T> {
       toList().castToMapWithMapper(onElementToKey, onElementToValue);
 }
 
+extension RemoveSpacesExtension on String {
+  /// Will remoce all spaces from the string and only then check if is empty.
+  /// Basicly, a shortcut to `trim().isEmpty`.
+  bool get isBlank => trim().isEmpty;
+}
+
+extension IntExtension on int {
+  /// Will return true if the value is bigger then [valueToBeCompared].
+  bool isBiggerThen(int valueToBeCompared) => this > valueToBeCompared;
+
+  /// Will return true if the value is bigger or equal then [valueToBeCompared].
+  bool isBiggerOrEqualThen(int valueToBeCompared) => this >= valueToBeCompared;
+
+  /// Will return true if the value is smaller then [valueToBeCompared].
+  bool isSmallerThen(int valueToBeCompared) => this < valueToBeCompared;
+
+  /// Will return true if the value is smaller or equal then [valueToBeCompared].
+  bool isSmallerOrEqualThen(int valueToBeCompared) => this <= valueToBeCompared;
+}
+
 /// A list of nullable elements.
 extension NullableIterableLessBoilerPlateExtension<T> on Iterable<T?> {
   /// {@macro isAnyElementDiffFromNull}
@@ -211,13 +231,13 @@ extension ListUtils<T> on List<T> {
 
   /// {@macro forEachMapper}
   FutureOr<void> forEachMapper(ForEachMapper<T> toElement) async {
-    asMap().entries.forEach((entry) async {
+    for (final entry in asMap().entries) {
       final index = entry.key;
       final value = entry.value;
       final isLast = (index + 1) == length;
       final isFirst = index == 0;
       await toElement(value, isFirst, isLast, index);
-    });
+    }
   }
 
   /// {@macro singleWhereOrNull}
@@ -333,6 +353,12 @@ extension ListCasters<E> on List<E> {
 }
 
 extension GenericsExtension<T> on T {
+  /// Cast value to type [R].
+  /// Basically, a shortcut to `this as R`:
+  R as<R>() => this as R;
+}
+
+extension DynamicExtension on dynamic {
   /// Cast value to type [R].
   /// Basically, a shortcut to `this as R`:
   R as<R>() => this as R;

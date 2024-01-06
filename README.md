@@ -145,6 +145,24 @@ final withNullList = [1, 2, 3, null];
 print(withNullList.removeNull); // [1, 2, 3]
 ```
 
+# Integer util's
+### bool isBiggerThen(int valueToBeCompared)
+Will return true if the value is bigger then [valueToBeCompared].
+### bool isBiggerOrEqualThen(int valueToBeCompared)
+Will return true if the value is bigger or equal then [valueToBeCompared].
+### bool isSmallerThen(int valueToBeCompared)
+Will return true if the value is smaller then [valueToBeCompared].
+### bool isSmallerOrEqualThen(int valueToBeCompared)
+Will return true if the value is smaller or equal then [valueToBeCompared].
+
+Example of thoose 4 compare functions:
+```dart
+final isBiggerThenTest = 4.isBiggerThen(6); // false
+final isBiggerOrEqualThenTest = 4.isBiggerOrEqualThen(4); // true 
+final isSmallerThenTest = 4.isSmallerThen(6); // true
+final isSmallerOrEqualThenTest = 4.isSmallerOrEqualThen(4); // true
+```
+
 # Map util's
 
 ## Try cast map

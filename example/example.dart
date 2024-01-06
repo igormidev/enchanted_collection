@@ -134,6 +134,16 @@ void main() {
   // ║ Cast with as<T>() ║
   // ╚═══════════════════╝
   final dynamic dynamicList = 3;
-  final int intList = dynamicList.as<int>();
+  final int intList = dynamicList.castTo<int>();
   print(intList); // 3
+
+  final isBiggerThenTest = 4.isBiggerThen(6); // false
+  final isBiggerOrEqualThenTest = 4.isBiggerOrEqualThen(4); // true
+  final isSmallerThenTest = 4.isSmallerThen(6); // true
+  final isSmallerOrEqualThenTest = 4.isSmallerOrEqualThen(4); // true
+
+  print(isBiggerThenTest);
+  print(isBiggerOrEqualThenTest);
+  print(isSmallerThenTest);
+  print(isSmallerOrEqualThenTest);
 }

@@ -1,3 +1,11 @@
+## 1.2.0
+* `isBlank` added. Check documentation
+* `isBiggerThen` added. Check documentation
+* `isBiggerOrEqualThen` added. Check documentation
+* `isSmallerThen` added. Check documentation
+* `isSmallerOrEqualThen` added. Check documentation
+* `forEachMapper` async function capability asserted
+
 ## 1.1.2
 * Added async option to forEachMapper method. Now you can call await before it and execute async functions for each interation on the list.
 * List extensions now work in Iterable also
